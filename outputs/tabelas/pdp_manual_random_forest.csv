@@ -1,0 +1,7 @@
+feature,value,avg_predicted_probability
+number_inpatient,0,0.48206996594410234
+number_inpatient,1,0.4970959607245469
+number_inpatient,2,0.5239387348407422
+number_inpatient,3,0.5246788864471926
+number_emergency,0,0.4885661873544327
+number_emergency,1,0.5042871517302117
