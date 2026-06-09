@@ -25,3 +25,12 @@ Para efeitos de modelação, a variável original foi transformada numa variáve
 Esta transformação permite focar o problema preditivo na identificação de pacientes com maior risco de readmissão precoce, uma situação potencialmente mais relevante do ponto de vista clínico e organizacional. Após a transformação, a classe positiva representa 11 357 observações, correspondendo a 11,16% da amostra, enquanto a classe negativa representa 90 409 observações, correspondendo a 88,84%.
 
 Esta distribuição revela um desequilíbrio significativo entre classes, o que deverá ser considerado na fase de modelação. Por esse motivo, a avaliação dos modelos não deverá depender apenas da exactidão global, sendo necessário recorrer também a métricas como precisão, recall, F1-score, matriz de confusão e AUC.
+## 3. Tratamento inicial de valores em falta
+
+Após a substituição dos valores representados por `?` por valores em falta reais, foi analisada a percentagem de valores ausentes em cada variável.
+
+A variável `weight` apresentou 96,86% de valores em falta, pelo que foi removida do conjunto de dados. As variáveis `payer_code` e `medical_specialty` apresentaram também percentagens elevadas de ausência, respectivamente 39,56% e 49,08%, e foram removidas nesta fase inicial, por poderem introduzir ruído ou instabilidade no processo de modelação.
+
+As variáveis `race`, `diag_1`, `diag_2`, `diag_3`, `max_glu_serum` e `A1Cresult` foram mantidas. Os seus valores em falta foram preenchidos com a categoria `Unknown`, preservando a informação de ausência como uma categoria explícita.
+
+Esta opção permite evitar a eliminação de observações e manter a dimensão da amostra original, ao mesmo tempo que torna o conjunto de dados adequado para as fases seguintes de preparação e modelação.
