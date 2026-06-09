@@ -1,36 +1,25 @@
-# Modelo explicável para previsão de readmissão hospitalar em pacientes diabéticos
+## Módulo 1 — Análise exploratória e preparação dos dados
 
-## 1. Introdução
+Neste módulo foi realizada a análise exploratória e a preparação inicial do conjunto de dados diabetic_data.csv, composto por 101 766 observações e 50 variáveis. O conjunto de dados contém informação demográfica, clínica e administrativa relativa a episódios hospitalares de pacientes com diabetes.
 
-Este projeto tem como objetivo desenvolver, avaliar e interpretar modelos de aprendizagem automática aplicados à previsão de readmissão hospitalar em pacientes com diabetes.
+A variável-alvo original é readmitted, com três categorias: NO, >30 e <30. A análise da sua distribuição mostrou que 54 864 observações correspondem a pacientes não readmitidos, 35 545 a pacientes readmitidos após mais de 30 dias e 11 357 a pacientes readmitidos em menos de 30 dias.
 
-O problema é relevante porque a readmissão hospitalar pode estar associada a maior risco clínico, aumento dos custos de saúde e necessidade de melhor acompanhamento dos pacientes após a alta.
+Para efeitos de modelação posterior, foi criada a variável binária readmitted_30, em que a classe positiva corresponde aos pacientes readmitidos em menos de 30 dias. Após esta transformação, a classe positiva representa 11 357 observações, correspondendo a 11,16% da amostra, enquanto a classe negativa representa 90 409 observações, correspondendo a 88,84%. Esta distribuição revela um desequilíbrio significativo entre classes.
 
-O conjunto de dados utilizado contém informação demográfica, clínica e hospitalar de pacientes diabéticos, incluindo variáveis como idade, género, raça, tempo de internamento, número de medicamentos, número de diagnósticos, histórico de internamentos e resultado de readmissão.
+Na etapa de tratamento de valores em falta, os valores representados por ? foram convertidos em valores ausentes reais. A análise mostrou percentagens elevadas de ausência nas variáveis weight, max_glu_serum, A1Cresult, medical_specialty e payer_code. Foram removidas as variáveis weight, payer_code e medical_specialty. As variáveis max_glu_serum, A1Cresult, race, diag_1, diag_2 e diag_3 foram mantidas e os seus valores em falta foram preenchidos com a categoria Unknown.
 
-A variável-alvo original é `readmitted`, com três categorias: pacientes não readmitidos, pacientes readmitidos após mais de 30 dias e pacientes readmitidos em menos de 30 dias.
+Após a limpeza, o conjunto de dados preparado ficou com 101 766 observações e 48 variáveis, sem valores em falta.
 
-Neste trabalho, será dada prioridade à previsão da readmissão em menos de 30 dias, transformando o problema numa tarefa de classificação binária. Assim, a classe positiva corresponde aos pacientes readmitidos em menos de 30 dias, enquanto a classe negativa corresponde aos restantes casos.
+Foi realizada análise univariada de variáveis numéricas, incluindo time_in_hospital, num_lab_procedures, num_procedures, num_medications, number_outpatient, number_emergency, number_inpatient e number_diagnoses. Esta análise permitiu observar diferenças relevantes de escala e a existência de valores extremos em algumas variáveis.
 
-O projeto inclui análise exploratória dos dados, preparação dos dados, treino e comparação de modelos interpretáveis e modelos mais complexos, aplicação de métodos de explicabilidade global e local, bem como uma análise crítica de riscos éticos, enviesamento algorítmico e enquadramento regulamentar.
+Também foi realizada análise univariada de variáveis categóricas como race, gender, age, max_glu_serum, A1Cresult, change e diabetesMed. Esta análise permitiu caracterizar a distribuição das principais categorias presentes no conjunto de dados.
 
-## 2. Definição da variável-alvo
+Na análise bivariada, foram comparadas variáveis numéricas com a variável-alvo readmitted_30. Observou-se que os pacientes readmitidos em menos de 30 dias apresentavam, em média, maior número de internamentos anteriores. Este padrão sugere que o histórico de internamentos pode ser relevante para a previsão da readmissão precoce.
 
-A variável-alvo original do conjunto de dados é `readmitted`, que identifica se um paciente foi readmitido no hospital após a alta. Esta variável apresenta três categorias: `NO`, quando o paciente não foi readmitido; `>30`, quando o paciente foi readmitido após mais de 30 dias; e `<30`, quando o paciente foi readmitido em menos de 30 dias.
+Foi também calculada uma matriz de correlação para as variáveis numéricas. A variável com maior correlação positiva com readmitted_30 foi number_inpatient, com correlação de aproximadamente 0,165. No entanto, as correlações observadas foram globalmente baixas, indicando que a readmissão precoce não é explicada por uma única variável numérica isolada.
 
-No conjunto de dados analisado, existem 54 864 casos classificados como `NO`, correspondendo a 53,91% da amostra; 35 545 casos classificados como `>30`, correspondendo a 34,93%; e 11 357 casos classificados como `<30`, correspondendo a 11,16%.
+A análise de outliers foi realizada através do método do intervalo interquartil. Foram identificados potenciais valores extremos em variáveis como number_outpatient, number_emergency, number_inpatient e num_procedures. Estes valores não foram removidos automaticamente, uma vez que, em contexto clínico, podem representar situações reais e relevantes.
 
-Para efeitos de modelação, a variável original foi transformada numa variável binária denominada `readmitted_30`. A classe positiva, codificada como `1`, corresponde aos pacientes readmitidos em menos de 30 dias. A classe negativa, codificada como `0`, inclui os pacientes não readmitidos e os pacientes readmitidos apenas após mais de 30 dias.
+Por fim, os dados foram separados em variáveis explicativas e variável-alvo. Foram excluídos os identificadores encounter_id e patient_nbr, bem como as variáveis readmitted e readmitted_30 do conjunto de variáveis explicativas. O conjunto final de variáveis explicativas ficou com 44 variáveis.
 
-Esta transformação permite focar o problema preditivo na identificação de pacientes com maior risco de readmissão precoce, uma situação potencialmente mais relevante do ponto de vista clínico e organizacional. Após a transformação, a classe positiva representa 11 357 observações, correspondendo a 11,16% da amostra, enquanto a classe negativa representa 90 409 observações, correspondendo a 88,84%.
-
-Esta distribuição revela um desequilíbrio significativo entre classes, o que deverá ser considerado na fase de modelação. Por esse motivo, a avaliação dos modelos não deverá depender apenas da exactidão global, sendo necessário recorrer também a métricas como precisão, recall, F1-score, matriz de confusão e AUC.
-## 3. Tratamento inicial de valores em falta
-
-Após a substituição dos valores representados por `?` por valores em falta reais, foi analisada a percentagem de valores ausentes em cada variável.
-
-A variável `weight` apresentou 96,86% de valores em falta, pelo que foi removida do conjunto de dados. As variáveis `payer_code` e `medical_specialty` apresentaram também percentagens elevadas de ausência, respectivamente 39,56% e 49,08%, e foram removidas nesta fase inicial, por poderem introduzir ruído ou instabilidade no processo de modelação.
-
-As variáveis `race`, `diag_1`, `diag_2`, `diag_3`, `max_glu_serum` e `A1Cresult` foram mantidas. Os seus valores em falta foram preenchidos com a categoria `Unknown`, preservando a informação de ausência como uma categoria explícita.
-
-Esta opção permite evitar a eliminação de observações e manter a dimensão da amostra original, ao mesmo tempo que torna o conjunto de dados adequado para as fases seguintes de preparação e modelação.
+A divisão entre treino e teste foi realizada com 80% dos dados para treino e 20% para teste, utilizando divisão estratificada. O conjunto de treino ficou com 81 412 observações e o conjunto de teste com 20 354 observações. A proporção da classe positiva manteve-se aproximadamente igual nos dois conjuntos, cerca de 11,16%, garantindo coerência na distribuição da variável-alvo.
